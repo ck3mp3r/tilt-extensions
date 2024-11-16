@@ -1,0 +1,35 @@
+# https://numtide.github.io/devshell
+packages = [
+  "helm-ls",
+  "pyright",
+  "black"
+]
+
+[[commands]]
+package = "colima"
+
+[[commands]]
+name = "helm"
+package = "kubernetes-helm"
+
+[[commands]]
+package = "kind"
+
+[[commands]]
+package = "kubectl"
+
+[[commands]]
+package = "tilt"
+category = "kubeops"
+
+[[commands]]
+name = "up"
+command = "tilt up"
+category = "kubeops"
+help = "bring tilt managed services/resources up"
+
+[[commands]]
+name = "down"
+command = "tilt down --delete-namespaces"
+category = "kubeops"
+help = "tear tilt managed services/resources down"

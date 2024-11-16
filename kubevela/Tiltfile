@@ -1,0 +1,26 @@
+load("ext://helm_resource", "helm_resource", "helm_repo")
+load("ext://namespace", "namespace_yaml")
+
+
+def kubevela_deploy(values_file=""):
+    labels = "kubevela"
+    helm_repo("kubevela", "https://charts.kubevela.net/core", labels=labels)
+
+    k8s_yaml(namespace_yaml("vela-system"))
+
+    flags = [
+        "--wait",
+        "--timeout=10m",
+    ]
+    if values_file != "":
+        flags.append("--values=" + values_file)
+
+    helm_resource(
+        "vela-core",
+        "kubevela/vela-core",
+        namespace="vela-system",
+        pod_readiness="ignore",
+        flags=flags,
+        resource_deps=["kubevela"],
+        labels=labels,
+    )

@@ -1,0 +1,5 @@
+{
+  "reportUndefinedVariable": false,
+  "reportMissingImports": false,
+  "extraPaths": ["src/tilt"]
+}

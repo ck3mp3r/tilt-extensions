@@ -1,0 +1,27 @@
+load("ext://helm_resource", "helm_resource", "helm_repo")
+load("ext://namespace", "namespace_yaml")
+
+
+def cloudnative_pg_deploy(values_file=""):
+    labels = "postgres"
+
+    # Add the CloudNativePG Helm repository
+    helm_repo("cloudnativepg", "https://cloudnative-pg.github.io/charts", "cloudnativepg-repo", labels=labels)
+
+    # Ensure the namespace for the operator exists
+    k8s_yaml(namespace_yaml("cloudnativepg"))
+
+    flags = []
+    if values_file != "":
+        flags.append("--values=" + values_file)
+        
+    # Deploy the CloudNativePG operator
+    helm_resource(
+        "cloudnativepg",
+        "cloudnativepg/cloudnative-pg",
+        namespace="cloudnativepg",
+        pod_readiness="ignore",
+        flags=flags,
+        resource_deps=["cloudnativepg-repo"],
+        labels=labels,
+    )

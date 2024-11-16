@@ -1,0 +1,55 @@
+load("ext://helm_resource", "helm_resource", "helm_repo")
+load("ext://namespace", "namespace_yaml")
+
+
+def vault_deploy(values_file="", secrets={}):
+    rel_path = os.path.dirname(__file__)
+    labels = "vault"
+    helm_repo("hashicorp", "https://helm.releases.hashicorp.com", labels=labels)
+
+    k8s_yaml(namespace_yaml("vault"))
+
+    flags = []
+    if values_file != "":
+        flags.append("--values=" + values_file)
+
+    helm_resource(
+        "vault",
+        "hashicorp/vault",
+        namespace="vault",
+        pod_readiness="ignore",
+        flags=flags,
+        resource_deps=["hashicorp"],
+        labels=labels,
+    )
+
+    local_resource(
+        "vault-init-and-unseal",
+        cmd=str(read_file(rel_path + "/init-unseal.sh")),
+        resource_deps=["vault"],
+        labels=labels,
+    )
+
+    seed_cmds = ""
+
+    for path, kv_pairs in secrets.items():
+        kv_string = " ".join(
+            ["{}={}".format(key, value) for key, value in kv_pairs.items()]
+        )
+        seed_cmds += "vault kv put " + path + " " + kv_string + "\n"
+
+    local_resource(
+        "vault-seed-secrets",
+        cmd=str(read_file(rel_path + "//seed-secrets.sh")).replace(
+            "__SEED_CMDS__", seed_cmds
+        ),
+        resource_deps=["vault-init-and-unseal"],
+        labels=labels,
+    )
+
+    local_resource(
+        "vault-port-forward",
+        serve_cmd="kubectl port-forward svc/vault 8200:8200 --namespace=vault",
+        resource_deps=["vault-init-and-unseal"],
+        labels=labels,
+    )

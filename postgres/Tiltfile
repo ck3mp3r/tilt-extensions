@@ -1,0 +1,23 @@
+load("ext://helm_resource", "helm_resource", "helm_repo")
+load("ext://namespace", "namespace_yaml")
+
+
+def postgres(values_file=""):
+    labels = "postgres"
+    helm_repo("bitnami", "https://charts.bitnami.com/bitnami", "bitnami-postgres", labels=labels)
+
+    k8s_yaml(namespace_yaml("postgres"))
+
+    flags = []
+    if values_file != "":
+        flags.append("--values=" + values_file)
+        
+    helm_resource(
+        "postgres",
+        "bitnami/postgresql",
+        namespace="postgres",
+        pod_readiness="ignore",
+        flags = flags,
+        resource_deps=["bitnami-postgres"],
+        labels=labels,
+    )

@@ -1,0 +1,25 @@
+load("ext://helm_resource", "helm_resource", "helm_repo")
+load("ext://namespace", "namespace_yaml")
+
+
+def kafka_deploy(values_file=""):
+    labels = "kafka"
+    helm_repo(
+        "bitnami", "https://charts.bitnami.com/bitnami", "bitnami-kafka", labels=labels
+    )
+
+    k8s_yaml(namespace_yaml("kafka"))
+
+    flags = []
+    if values_file != "":
+        flags.append("--values=" + values_file)
+
+    helm_resource(
+        "kafka",
+        "bitnami/kafka",
+        namespace="kafka",
+        pod_readiness="ignore",
+        flags=flags,
+        resource_deps=["bitnami-kafka"],
+        labels=labels,
+    )

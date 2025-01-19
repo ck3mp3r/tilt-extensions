@@ -2,7 +2,10 @@ load("ext://helm_resource", "helm_resource", "helm_repo")
 load("ext://namespace", "namespace_yaml")
 
 
-def kafka_deploy(values_file=""):
+def kafka_deploy(
+    values_file="",
+    auto_init=True,
+):
     labels = "kafka"
     helm_repo(
         "bitnami", "https://charts.bitnami.com/bitnami", "bitnami-kafka", labels=labels
@@ -22,4 +25,5 @@ def kafka_deploy(values_file=""):
         flags=flags,
         resource_deps=["bitnami-kafka"],
         labels=labels,
+        auto_init=auto_init,
     )

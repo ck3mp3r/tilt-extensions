@@ -2,7 +2,7 @@ load("ext://helm_resource", "helm_resource", "helm_repo")
 load("ext://namespace", "namespace_yaml")
 
 
-def kubevela_deploy(values_file=""):
+def kubevela_deploy(values_file="", auto_init=True):
     labels = "kubevela"
     helm_repo("kubevela", "https://charts.kubevela.net/core", labels=labels)
 
@@ -23,4 +23,5 @@ def kubevela_deploy(values_file=""):
         flags=flags,
         resource_deps=["kubevela"],
         labels=labels,
+        auto_init=auto_init,
     )

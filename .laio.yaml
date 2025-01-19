@@ -1,13 +1,11 @@
 name: tilt-extensions
 path: .
-shutdown:
-  - kind delete cluster -n tilt-playground
 windows:
   - name: code
     panes:
       - flex: 1
         commands:
-          - $EDITOR
+          - command: $EDITOR
   - name: misc
     panes:
       - flex: 1
@@ -15,6 +13,4 @@ windows:
   - name: k9s
     panes:
       - commands:
-          - kind get clusters | grep -q 'tilt-playground' || kind create cluster --name tilt-playground
-          - kx kind-tilt-playground
-          - k9s
+          - command: k9s

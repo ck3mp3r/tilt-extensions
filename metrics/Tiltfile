@@ -1,0 +1,26 @@
+load("ext://helm_resource", "helm_resource", "helm_repo")
+load("ext://namespace", "namespace_yaml")
+
+
+def metrics_deploy(values_file="", auto_init=True):
+    labels = "metrics"
+    helm_repo(
+        "metrics-server-repo",
+        "https://kubernetes-sigs.github.io/metrics-server",
+        labels=labels,
+    )
+
+    flags = ["--set", "args={--kubelet-insecure-tls}"]
+    if values_file != "":
+        flags.append("--values=" + values_file)
+
+    helm_resource(
+        "metrics-server",
+        "metrics-server-repo/metrics-server",
+        namespace="kube-system",
+        pod_readiness="ignore",
+        flags=flags,
+        resource_deps=["metrics-server-repo"],
+        labels=labels,
+        auto_init=auto_init,
+    )

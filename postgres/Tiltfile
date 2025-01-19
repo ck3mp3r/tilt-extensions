@@ -2,7 +2,7 @@ load("ext://helm_resource", "helm_resource", "helm_repo")
 load("ext://namespace", "namespace_yaml")
 
 
-def postgres(values_file="", auto_init=True):
+def postgres_deploy(values_file="", auto_init=True):
     labels = "postgres"
     helm_repo(
         "bitnami",
